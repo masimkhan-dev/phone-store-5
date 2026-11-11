@@ -25,12 +25,18 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 type Item = { to: string; label: string; roles: Role[]; end?: boolean };
-// Only screens that exist are listed. Invoicing (Phase B) and Control (Phase C) are added when built.
 const NAV: Item[] = [
   { to: "/admin", label: "Today", roles: ["owner", "manager", "staff"], end: true },
+  { to: "/admin/repairs/new", label: "New completed repair", roles: ["owner", "manager", "staff"] },
   { to: "/admin/enquiries", label: "Enquiries", roles: ["owner", "manager", "staff"] },
+  { to: "/admin/invoices", label: "Invoices", roles: ["owner", "manager", "staff"] },
+  { to: "/admin/customers", label: "Customers", roles: ["owner", "manager", "staff"] },
+  { to: "/admin/sales", label: "Other sales", roles: ["owner", "manager", "staff"] },
   { to: "/admin/catalogue", label: "Catalogue", roles: ["owner", "manager", "staff"] },
-  { to: "/admin/reports", label: "Reports", roles: ["owner", "manager"] },
+  { to: "/admin/expenses", label: "Expenses", roles: ["owner", "manager"] },
+  { to: "/admin/closing", label: "Daily closing", roles: ["owner", "manager"] },
+  { to: "/admin/finance", label: "Financial report", roles: ["owner", "manager"] },
+  { to: "/admin/reports", label: "Enquiry report", roles: ["owner", "manager"] },
   { to: "/admin/branch", label: "Branch details", roles: ["owner", "manager"] },
   { to: "/admin/users", label: "Users", roles: ["owner", "manager"] },
   { to: "/admin/content", label: "Prices and content", roles: ["owner"] },

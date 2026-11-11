@@ -10,6 +10,7 @@
 | Validation | Zod 4 | One schema per form, used on the server |
 | Financial writes | PostgreSQL functions | Atomic; see below |
 | Email | Resend HTTP API | The SRS says "transactional email service" without naming one. Isolated in `modules/enquiries/notify.server.ts`; swap freely. |
+| PDF | pdf-lib | Invoices and the monthly summary are drawn on the server, with no headless browser, so it runs on serverless hosts. The browser print view uses print CSS. |
 | Hosting | Any Node 22 host | Runs with `react-router-serve`. Vercel/Netlify adapters are not installed yet: see deployment.md |
 
 ## Shape

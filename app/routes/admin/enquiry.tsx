@@ -100,6 +100,7 @@ export default function EnquiryDetail({ loaderData, actionData }: Route.Componen
           <>
             <a href={telHref(e.customer_phone)} className={buttonClass("primary")}>Call {e.customer_phone}</a>
             <a href={whatsappHref(e.customer_phone)} target="_blank" rel="noopener" className={buttonClass("secondary")}>WhatsApp</a>
+            {["new", "contacted", "quoted"].includes(e.status) ? <Link to={`/admin/repairs/new?enquiry=${e.id}`} className={buttonClass("secondary")}>Record the completed repair</Link> : null}
           </>
         }
       >

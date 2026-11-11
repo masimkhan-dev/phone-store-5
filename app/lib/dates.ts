@@ -54,3 +54,8 @@ export function timeAgo(iso: string, now: Date = new Date()): string {
   if (minutes < 60 * 24) return `${Math.floor(minutes / 60)} h ago`;
   return `${Math.floor(minutes / (60 * 24))} d ago`;
 }
+
+/** Full date with the year, for invoices: "11 Nov 2026, 10:42". */
+export function formatInvoiceDate(iso: string): string {
+  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}

@@ -215,7 +215,7 @@ left join lateral (select sum(amount_pence) as credited from public.credit_notes
 --     imei?, warranty_days?, internal_parts_cost_pence?, enquiry_id?,
 --     discount_kind: none|amount|percent, discount_value?,   (pence, or basis points for percent)
 --     lines: [{ description, quantity, unit_price_pence }],
---     payment_method?, payment_amount_pence? }
+--     payment_method?, payment_amount_pence? | paid_in_full? }
 -- ---------------------------------------------------------------------------
 create function public.issue_repair_invoice(p jsonb) returns jsonb
 language plpgsql security definer set search_path = public, pg_temp as $$
@@ -342,6 +342,10 @@ begin
   v_total := v_subtotal - v_discount;
   if v_rate > 0 and not v_settings.prices_include_vat then
     v_total := v_total + v_tax;
+  end if;
+  -- "Paid in full" is the default at the till: the database, not the browser, supplies the amount.
+  if coalesce((p->>'paid_in_full')::boolean, false) then
+    v_pay := v_total;
   end if;
   if v_pay < 0 or v_pay > v_total then
     raise exception 'Payment cannot be more than the invoice total' using errcode = '22023';

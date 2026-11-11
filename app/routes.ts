@@ -30,6 +30,9 @@ export default [
   route("forgot-password", "routes/auth/forgot-password.tsx"),
   route("reset-password", "routes/auth/reset-password.tsx"),
 
+  // Print view: its own page, without the dashboard chrome, so only the invoice prints.
+  route("admin/invoices/:id/print", "routes/admin/invoice-print.tsx"),
+
   route("admin", "routes/admin/layout.tsx", [
     index("routes/admin/dashboard.tsx"),
     route("mfa", "routes/admin/mfa.tsx"),
@@ -37,6 +40,21 @@ export default [
     route("enquiries/:id", "routes/admin/enquiry.tsx"),
     route("catalogue", "routes/admin/catalogue.tsx"),
     route("catalogue/:id", "routes/admin/product.tsx"),
+    // Phase B: completed repairs, invoices, payments, customers.
+    route("repairs/new", "routes/admin/repair-new.tsx"),
+    route("invoices", "routes/admin/invoices.tsx"),
+    route("invoices/:id", "routes/admin/invoice.tsx"),
+    route("invoices/:id/pdf", "routes/admin/invoice-pdf.ts"),
+    route("customers", "routes/admin/customers.tsx"),
+    route("customers/lookup", "routes/admin/customer-lookup.ts"),
+    route("customers/:id", "routes/admin/customer.tsx"),
+    // Phase C: other sales, expenses, optional daily closing, financial report.
+    route("sales", "routes/admin/sales.tsx"),
+    route("expenses", "routes/admin/expenses.tsx"),
+    route("closing", "routes/admin/closing.tsx"),
+    route("finance", "routes/admin/finance.tsx"),
+    route("finance/export", "routes/admin/finance-export.ts"),
+    route("finance/summary", "routes/admin/finance-summary.ts"),
     route("branch", "routes/admin/branch.tsx"),
     route("users", "routes/admin/users.tsx"),
     route("content", "routes/admin/content.tsx"),

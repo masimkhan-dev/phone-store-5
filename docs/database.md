@@ -9,6 +9,7 @@ Migrations live in `supabase/migrations`, applied in filename order. Never edit 
 | `…0300_invoicing` | `customers`, `repairs`, `invoice_counters`, `invoices`, `invoice_lines`, `payments`, `credit_notes`, `refunds`, view `invoice_balances`; invoice functions |
 | `…0400_control` | `other_sales`, `expenses`, `daily_closings`, `adjustments`; `cash_figures` and the Phase C write functions |
 | `…0500_reporting` | `report_financial`, `report_acquisition`, `erase_person`, `purge_expired_enquiries` |
+| `…0700_credit_and_refund` | `credit_and_refund`: credit note plus its refund in one transaction |
 | `…0600_storage_and_top_pages` | `report_top_pages`; storage buckets and their policies (skipped where there is no `storage` schema) |
 
 One table beyond the SRS list: `form_rate_limits`, needed for public-form and login rate limiting on serverless hosting.
@@ -30,7 +31,7 @@ One table beyond the SRS list: `form_rate_limits`, needed for public-form and lo
 
 ## Functions the application calls
 
-`issue_repair_invoice(jsonb)`, `record_payment`, `cancel_invoice`, `create_credit_note`, `record_refund`, `record_other_sale`, `void_other_sale`, `record_expense`, `void_expense`, `submit_daily_closing`, `record_adjustment`, `cash_figures`, `report_financial`, `report_acquisition`, `report_top_pages`, `create_profile`, `update_profile`, `can_manage_user`, `log_login`, `log_export`, `erase_person`, `check_rate_limit` (service role only), `purge_expired_enquiries` (service role only; schedule it daily).
+`issue_repair_invoice(jsonb)`, `record_payment`, `cancel_invoice`, `create_credit_note`, `record_refund`, `credit_and_refund`, `record_other_sale`, `void_other_sale`, `record_expense`, `void_expense`, `submit_daily_closing`, `record_adjustment`, `cash_figures`, `report_financial`, `report_acquisition`, `report_top_pages`, `create_profile`, `update_profile`, `can_manage_user`, `log_login`, `log_export`, `erase_person`, `check_rate_limit` (service role only), `purge_expired_enquiries` (service role only; schedule it daily).
 
 ## Testing
 

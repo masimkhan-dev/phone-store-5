@@ -27,8 +27,47 @@ const tables = {
   products: [{ id: "55555555-5555-4555-8555-555555555555", branch_id: B1, slug: "fixture-phone", category: "used_phone", brand: "Fixture", model: "Phone One", storage: "64GB", colour: "Black", condition_grade: "A", battery_health_pct: 90, price_pence: 12345, warranty_months: 12, description: null, status: "available", created_at: "2026-01-01T00:00:00Z", product_photos: [] }],
   redirects: [{ from_path: "/old-page", to_path: "/repairs" }],
 };
-export const received = { enquiries: [], events: [] };
 
+// ---- Signed-in fixtures for the dashboard smoke test ----
+const USERS = {
+  staff: { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1", full_name: "Fixture Staff", email: "staff@test.invalid", role: "staff", branch_id: B1, is_active: true },
+  manager: { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2", full_name: "Fixture Manager", email: "manager@test.invalid", role: "manager", branch_id: B1, is_active: true },
+  owner: { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3", full_name: "Fixture Owner", email: "owner@test.invalid", role: "owner", branch_id: null, is_active: true },
+};
+const INV = "77777777-7777-4777-8777-777777777777";
+const CUST = "88888888-8888-4888-8888-888888888888";
+const ENQ = "99999999-9999-4999-8999-999999999999";
+const now = new Date().toISOString();
+Object.assign(tables, {
+  business_settings: [{ ...tables.business_settings[0], legal_name: null, vat_mode: "not_registered", vat_number: null, vat_rate_bp: 2000, vat_confirmed: false, prices_include_vat: true, invoice_terms: "Fixture invoice terms.", enquiry_retention_months: 12 }],
+  profiles: Object.values(USERS),
+  enquiries: [{ id: ENQ, branch_id: B1, type: "repair_quote", status: "new", customer_name: "Fixture Enquirer", customer_phone: "07000 111111", customer_email: null, device_type: "Phone", device_brand: null, device_model: "Fixture Model", fault: "Screen repair", product_id: null, storage: null, condition: null, message: null, source_url: "/example-town", landing_page: "/", utm_source: null, utm_medium: null, utm_campaign: null, assigned_to: null, outcome_note: null, sale_value_pence: null, first_contacted_at: null, status_changed_at: now, created_at: now }],
+  enquiry_events: [{ id: 1, enquiry_id: ENQ, event_type: "created", from_status: null, to_status: "new", note: null, created_at: now, user_id: null }],
+  customers: [{ id: CUST, branch_id: B1, name: "Fixture Customer", phone: "07000 222222", phone_normalised: "07000222222", email: null, erased_at: null, created_at: now, invoices: [] }],
+  invoices: [{ id: INV, branch_id: B1, repair_id: "r", customer_id: CUST, invoice_number: "EX1-2026-00042", issued_at: now, issued_by_name: "Fixture Staff", customer_name: "Fixture Customer", customer_phone: "07000 222222", device_description: "Fixture Model", imei: null, warranty_days: 90, vat_mode: "not_registered", prices_include_vat: true, subtotal_pence: 8000, discount_kind: "percent", discount_percent_bp: 1000, discount_pence: 800, tax_pence: 0, total_pence: 7200, cancelled_at: null, cancel_reason: null }],
+  invoice_lines: [{ id: "l1", invoice_id: INV, position: 1, description: "Fixture screen repair", quantity: 2, unit_price_pence: 2500, line_total_pence: 5000, tax_rate_bp: 0, tax_pence: 0 }, { id: "l2", invoice_id: INV, position: 2, description: "Fixture battery", quantity: 1, unit_price_pence: 3000, line_total_pence: 3000, tax_rate_bp: 0, tax_pence: 0 }],
+  payments: [{ id: "pay1", invoice_id: INV, method: "cash", amount_pence: 4000, received_at: now }],
+  refunds: [], credit_notes: [],
+  invoice_balances: [{ invoice_id: INV, branch_id: B1, invoice_number: "EX1-2026-00042", issued_at: now, total_pence: 7200, credited_pence: 0, paid_pence: 4000, refunded_pence: 0, outstanding_pence: 3200, payment_status: "partially_paid" }],
+  other_sales: [{ id: "os1", branch_id: B1, category: "accessory", description: "Fixture case", amount_pence: 1500, sold_at: now, voided_at: null, void_reason: null, payments: [{ method: "cash" }] }],
+  expenses: [{ id: "ex1", branch_id: B1, expense_date: now.slice(0, 10), category: "shop_supplies", description: "Fixture supplies", amount_pence: 1200, method: "cash", frequency: "daily", receipt_path: null, voided_at: null, void_reason: null, created_at: now }],
+  daily_closings: [], audit_logs: [{ id: 1, at: now, user_name: "Fixture Owner", branch_id: null, action: "login", entity: "profile", entity_id: null, details: {} }],
+});
+const rpc = {
+  check_rate_limit: () => true, log_login: () => null, log_export: () => null, can_manage_user: () => true,
+  report_acquisition: () => [{ branch_id: B1, sessions: 100, call_clicks: 5, whatsapp_clicks: 4, directions_clicks: 3, quote_starts: 6, quote_submits: 2, reserve_submits: 1, enquiries: 3, converted: 1, late_enquiries: 0, median_response_seconds: 600 }],
+  report_top_pages: () => [{ page_path: "/example-town", sessions: 60, enquiry_actions: 7 }],
+  report_financial: () => [{ branch_id: B1, invoice_count: 1, repair_revenue_pence: 7200, other_sales_pence: 1500, gross_sales_pence: 8700, refunds_pence: 0, net_sales_pence: 8700, payments_cash_pence: 5500, payments_card_pence: 0, payments_bank_transfer_pence: 0, payments_received_pence: 5500, outstanding_pence: 3200, expenses_pence: 1200, operating_movement_pence: 7500 }],
+  cash_figures: () => [{ cash_received_pence: 5500, cash_expenses_pence: 1200, cash_refunds_pence: 0 }],
+  issue_repair_invoice: () => ({ invoice_id: INV, invoice_number: "EX1-2026-00042", total_pence: 7200 }),
+  record_payment: () => "pay2", record_other_sale: () => "os2", record_expense: () => "ex2", submit_daily_closing: () => "dc1",
+};
+function userFromToken(req) {
+  const token = (req.headers.authorization ?? "").replace("Bearer ", "");
+  try { return USERS[JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString()).fixture_role] ?? null; } catch { return null; }
+}
+
+export const received = { enquiries: [], events: [], rpc: [] };
 function send(res, status, body) {
   res.writeHead(status, { "Content-Type": "application/json", "Content-Range": "0-0/*" });
   res.end(body === undefined ? "" : JSON.stringify(body));
@@ -41,8 +80,16 @@ createServer(async (req, res) => {
   const single = (req.headers.accept ?? "").includes("vnd.pgrst.object");
 
   if (url.pathname === "/__received") return send(res, 200, received);
-  if (url.pathname.startsWith("/auth/v1/")) return send(res, 401, { code: 401, msg: "no session" });
-  if (url.pathname === "/rest/v1/rpc/check_rate_limit") return send(res, 200, true);
+  if (url.pathname.startsWith("/auth/v1/")) {
+    const user = userFromToken(req);
+    return user ? send(res, 200, { id: user.id, email: user.email, aud: "authenticated", role: "authenticated", factors: [] }) : send(res, 401, { code: 401, msg: "no session" });
+  }
+  if (url.pathname.startsWith("/storage/v1/")) return send(res, 200, []);
+  if (url.pathname.startsWith("/rest/v1/rpc/")) {
+    const name = url.pathname.split("/").pop();
+    received.rpc.push({ name, args: JSON.parse(raw || "{}"), role: userFromToken(req)?.role ?? null });
+    return name in rpc ? send(res, 200, rpc[name]()) : send(res, 404, { message: `stub has no rpc ${name}` });
+  }
   const table = url.pathname.replace("/rest/v1/", "");
 
   if (req.method === "POST") {
@@ -52,6 +99,10 @@ createServer(async (req, res) => {
   }
   let rows = tables[table];
   if (!rows) return send(res, 404, { message: `stub has no table ${table}` });
+  // The profile lookup: a signed-in fixture user only ever reads their own row here.
+  if (table === "profiles" && url.searchParams.get("id")?.startsWith("eq.") && single) rows = rows.filter((r) => `eq.${r.id}` === url.searchParams.get("id"));
+  if (req.method === "HEAD") { res.writeHead(200, { "Content-Range": `0-0/${rows.length}` }); return res.end(); }
+  if (req.method === "PATCH" || req.method === "DELETE") return send(res, 200, single ? rows[0] : rows.slice(0, 1));
   for (const [key, value] of url.searchParams) {
     if (value.startsWith("eq.")) rows = rows.filter((r) => !(key in r) || String(r[key]) === value.slice(3));
   }

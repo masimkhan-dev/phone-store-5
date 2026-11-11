@@ -160,3 +160,46 @@ export const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
   hidden: "Hidden",
 };
 export const ROLE_LABEL: Record<Role, string> = { owner: "Owner", manager: "Branch Manager", staff: "Staff" };
+
+// ---- Phase B and C ----
+export type PaymentMethod = "cash" | "card" | "bank_transfer";
+export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = { cash: "Cash", card: "Card", bank_transfer: "Bank transfer" };
+export type PaymentStatus = "unpaid" | "partially_paid" | "paid" | "refunded" | "cancelled";
+export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = { unpaid: "Unpaid", partially_paid: "Partially paid", paid: "Paid", refunded: "Refunded", cancelled: "Cancelled" };
+export type VatMode = "not_registered" | "standard" | "margin_scheme";
+
+export type Invoice = {
+  id: string;
+  branch_id: string;
+  repair_id: string;
+  customer_id: string;
+  invoice_number: string;
+  issued_at: string;
+  issued_by_name: string;
+  customer_name: string;
+  customer_phone: string;
+  device_description: string;
+  imei: string | null;
+  warranty_days: number | null;
+  vat_mode: VatMode;
+  prices_include_vat: boolean;
+  subtotal_pence: number;
+  discount_kind: "none" | "amount" | "percent";
+  discount_percent_bp: number | null;
+  discount_pence: number;
+  tax_pence: number;
+  total_pence: number;
+  cancelled_at: string | null;
+  cancel_reason: string | null;
+};
+export type InvoiceLine = { id: string; position: number; description: string; quantity: number; unit_price_pence: number; line_total_pence: number; tax_rate_bp: number; tax_pence: number };
+export type Payment = { id: string; method: PaymentMethod; amount_pence: number; received_at: string };
+export type Refund = { id: string; method: PaymentMethod; amount_pence: number; reason: string; refunded_at: string; credit_note_id: string | null };
+export type CreditNote = { id: string; amount_pence: number; reason: string; created_at: string };
+export type InvoiceBalance = { invoice_id: string; branch_id: string; invoice_number: string; issued_at: string; total_pence: number; credited_pence: number; paid_pence: number; refunded_pence: number; outstanding_pence: number; payment_status: PaymentStatus };
+export type Customer = { id: string; branch_id: string; name: string; phone: string; email: string | null; erased_at: string | null; created_at: string };
+
+export type OtherSaleCategory = "new_phone" | "used_phone" | "accessory" | "sim_topup" | "unlocking" | "other";
+export const OTHER_SALE_LABEL: Record<OtherSaleCategory, string> = { new_phone: "New phone", used_phone: "Used phone", accessory: "Accessory", sim_topup: "SIM or top-up", unlocking: "Unlocking", other: "Other" };
+export type ExpenseCategory = "rent" | "utilities" | "internet" | "salaries" | "parts_materials" | "transport" | "shop_supplies" | "maintenance" | "marketing" | "other";
+export const EXPENSE_LABEL: Record<ExpenseCategory, string> = { rent: "Rent", utilities: "Utilities", internet: "Internet", salaries: "Salaries", parts_materials: "Parts and materials", transport: "Transport", shop_supplies: "Shop supplies", maintenance: "Maintenance", marketing: "Marketing", other: "Other" };

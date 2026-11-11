@@ -76,3 +76,39 @@ reset role;
 select test.eq('erasure deleted the unconverted enquiry', (select count(*) from public.enquiries where id = 'eeeeeeee-0000-0000-0000-00000000000b'), 0);
 select test.eq('erasure anonymised the customer', (select count(*) from public.customers where erased_at is not null and phone = ''), 1);
 select test.eq('erasure kept the invoice', (select count(*) from public.invoices where invoice_number like 'TSB-%-00001'), 1);
+
+-- credit_and_refund is atomic and role-checked.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000003', false);
+select test.fails('staff cannot credit and refund',
+  $$select public.credit_and_refund((select id from public.invoices where invoice_number like 'TSA-%-00001'), 'cash', 100, 'x')$$);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000002', false);
+select test.fails('a refund above the money received rolls the credit note back too',
+  $$select public.credit_and_refund((select id from public.invoices where invoice_number like 'TSA-%-00002'), 'cash', 5001, 'x')$$);
+reset role;
+select test.eq('no orphan credit note was left behind',
+  (select count(*) from public.credit_notes c join public.invoices i on i.id = c.invoice_id where i.invoice_number like 'TSA-%-00002'), 0);
+set role authenticated;
+select public.credit_and_refund((select id from public.invoices where invoice_number like 'TSA-%-00001'), 'cash', 1200, 'Part refund');
+reset role;
+select test.eq('credit and refund leaves the invoice paid with nothing outstanding',
+  (select count(*) from public.invoice_balances where invoice_number like 'TSA-%-00001' and payment_status = 'paid' and outstanding_pence = 0 and credited_pence = 1200 and refunded_pence = 1200), 1);
+
+-- Paid in full: the database supplies the amount, including with VAT added on top.
+update public.business_settings set vat_mode = 'standard', prices_include_vat = false;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000003', false);
+select public.issue_repair_invoice('{"customer_name":"VAT Test","customer_phone":"07000 000099","device_model":"x","paid_in_full":true,"payment_method":"card",
+  "discount_kind":"percent","discount_value":1000,
+  "lines":[{"description":"a","quantity":3,"unit_price_pence":333},{"description":"b","quantity":1,"unit_price_pence":1001}]}');
+reset role;
+-- subtotal 2000, 10% off = 200, net 1800; VAT 20% per line on 899 and 901 = 180 + 180 = 360; total 2160.
+select test.eq('VAT-exclusive invoice total', (select total_pence from public.invoices where customer_name = 'VAT Test'), 2160);
+select test.eq('VAT stored per line adds up to the invoice VAT',
+  (select sum(l.tax_pence) from public.invoice_lines l join public.invoices i on i.id = l.invoice_id where i.customer_name = 'VAT Test'),
+  (select tax_pence from public.invoices where customer_name = 'VAT Test'));
+select test.eq('line tax rate is stored at issue',
+  (select count(*) from public.invoice_lines l join public.invoices i on i.id = l.invoice_id where i.customer_name = 'VAT Test' and l.tax_rate_bp = 2000), 2);
+select test.eq('paid in full pays exactly the total',
+  (select count(*) from public.invoice_balances b join public.invoices i on i.id = b.invoice_id where i.customer_name = 'VAT Test' and b.payment_status = 'paid' and b.paid_pence = 2160), 1);
+update public.business_settings set vat_mode = 'not_registered', prices_include_vat = true;
