@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* Design tokens. Brand colours are the client's red and yellow; confirm against the real logo. */
+@theme {
+  --color-brand-red: #d71920;
+  --color-brand-red-dark: #b3141a;
+  --color-brand-yellow: #ffc928;
+  --color-charcoal: #171717;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f5f5;
+  --color-line: #e5e5e5;
+  --color-line-strong: #d4d4d4;
+  --color-ink: #171717;
+  --color-ink-soft: #404040;
+  /* #737373 from the brief fails 4.5:1 on the grey canvas, so muted text is one step darker. */
+  --color-ink-muted: #5f5f5f;
+  --color-on-dark-muted: #d4d4d4;
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-danger: #dc2626;
+
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --container-site: 77.5rem;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-crack: crack 8s ease-in-out infinite;
+  --animate-fixed: fixed 8s ease-in-out infinite;
+  --animate-sweep: sweep 8s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(-10px); }
+    50% { transform: translateY(10px); }
+  }
+  @keyframes crack {
+    0%, 35% { opacity: 1; }
+    50%, 90% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes fixed {
+    0%, 42% { opacity: 0; }
+    54%, 90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes sweep {
+    0%, 30% { transform: translateY(0); opacity: 0; }
+    33% { opacity: 1; }
+    50% { transform: translateY(440px); opacity: 1; }
+    53%, 100% { transform: translateY(440px); opacity: 0; }
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-brand-yellow);
+    outline-offset: 2px;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .h-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+  .h-section {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+  .h-card {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .container-site {
+    max-width: var(--container-site);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+  /* Room for the sticky mobile action bar so it never covers content or form controls. */
+  .has-mobile-bar {
+    padding-bottom: 4.5rem;
+  }
+  @media (min-width: 48rem) {
+    .has-mobile-bar {
+      padding-bottom: 0;
+    }
+  }
+}
